@@ -42,7 +42,8 @@ void setup() {
   strip.begin();
   strip.show();
   strip.setBrightness(brightness);
-
+  colorWipe(strip.color(0, 0, 50), 5);
+  fadeOutBlue(25,0,30);
   /* #region Setup WiFi */
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -50,7 +51,8 @@ void setup() {
   Serial.print(WIFI_SSID);
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    colorWipe(strip.color(0, 50, 30), 5);
+    colorWipe(strip.color(0, 0, 0), 5);
     Serial.print(".");
   }
   Serial.println("Connected!");
@@ -59,6 +61,9 @@ void setup() {
   if (MDNS.begin("esp8266")) {
     Serial.println("MDNS responder started");
   }
+  fadeInGreen(0,50,30);
+  delay(1000);
+  fadeOutGreen(50,0,30);
 
   Local_IP_Display = WiFi.localIP().toString().substring(WiFi.localIP().toString().lastIndexOf('.') + 1).toInt();
 
@@ -138,4 +143,53 @@ void ShowIPOnClock(int last_digit_ip) {
     strip.setPixelColor(last_digit_ip, strip.Color(255, 255, 255)); //1st digit
   }
   
+}
+
+// For Startup Animation
+void colorWipe(uint32_t color, int speed) {
+  for(int i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, color);
+    strip.show();
+    delay(speed);
+  }
+}
+
+void fadeOutBlue(int start, int end, int speed) {
+  for(int i=start; i>end; i--) {
+    strip.fill(strip.Color(0, 0, i));
+    strip.show();
+    delay(speed);
+  }
+}
+
+void fadeOutGreen(int start, int end, int speed) {
+  for(int i=start; i>end; i--) {
+    strip.fill(strip.Color(0, i, 0));
+    strip.show();
+    delay(speed);
+  }
+}
+
+void fadeInGreen(int start, int end, int speed) {
+  for(int i=start; i<end; i++) {
+    strip.fill(strip.Color(0, i, 0));
+    strip.show();
+    delay(speed);
+  }
+}
+
+// regular animation
+void rainbowFade(int wait, int rainbowLoops) {
+
+  for(uint32_t firstPixelHue = 0; firstPixelHue < rainbowLoops*65536;
+    firstPixelHue += 256) {
+
+    for(int i=0; i<strip.numPixels(); i++) { 
+      uint32_t pixelHue = firstPixelHue + (i * 65536L / strip.numPixels());
+      strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue, 255, 255)));
+    }
+
+    strip.show();
+    delay(wait);
+}
 }
