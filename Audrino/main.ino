@@ -88,8 +88,8 @@ void setup() {
 
 void loop() {
   server.handleClient();
-  delay(2);
   strip.setBrightness(brightness);
+  rainbowFade(5,1);
 }
 
 
